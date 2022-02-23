@@ -1,9 +1,11 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using System.Text.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using Range = SemVer.Range;
 using Version = SemVer.Version;
+using System.Text.Json;
+using Blish_HUD.Content.Serialization;
+using System.Linq;
 
 namespace Blish_HUD.Modules {
 
@@ -12,41 +14,29 @@ namespace Blish_HUD.Modules {
         private const string BLISHHUD_DEPENDENCY_NAME = "bh.blishhud";
 
         internal class VersionDependenciesConverter : JsonConverter<List<ModuleDependency>> {
+            public override List<ModuleDependency> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
+                try {
+                    Dictionary<string, string> dict = JsonSerializer.Deserialize<Dictionary<string, string>>(ref reader, options);
 
-            public override void WriteJson(JsonWriter writer, List<ModuleDependency> value, JsonSerializer serializer) {
-                writer.WriteStartObject();
+                    return dict.Select(kvp => new ModuleDependency() {
+                        Namespace = kvp.Key,
+                        VersionRange = new Range(kvp.Value, true),
+                    }).ToList();
+                } catch (Exception ex) {
 
-                foreach (var dependency in value) {
-                    writer.WritePropertyName(dependency.Namespace);
-                    writer.WriteValue(dependency.VersionRange.ToString());
+                    throw ex;
                 }
-
-                writer.WriteEndObject();
             }
 
-            public override List<ModuleDependency> ReadJson(JsonReader reader, Type objectType, List<ModuleDependency> existingValue, bool hasExistingValue, JsonSerializer serializer) {
-                if (reader.TokenType == JsonToken.Null) return null;
-
-                var moduleDependencyList = new List<ModuleDependency>();
-
-                JObject mdObj = JObject.Load(reader);
-
-                foreach (var prop in mdObj) {
-                    string dependencyNamespace    = prop.Key;
-                    string dependencyVersionRange = prop.Value.ToString();
-
-                    moduleDependencyList.Add(new ModuleDependency() {
-                        Namespace    = dependencyNamespace,
-                        VersionRange = new Range(dependencyVersionRange)
-                    });
-                }
-
-                return moduleDependencyList;
+            public override void Write(Utf8JsonWriter writer, List<ModuleDependency> value, JsonSerializerOptions options) {
+                Dictionary<string, string> dict = value.ToDictionary(val => val.Namespace, val => val.VersionRange.ToString());
+                JsonSerializer.Serialize(writer, dict, options);
             }
         }
 
         public string Namespace { get; private set; }
 
+        [JsonConverter(typeof(SemVerRangeConverter))]
         public Range VersionRange { get; private set; }
 
         public bool IsBlishHud => string.Equals(this.Namespace, BLISHHUD_DEPENDENCY_NAME, StringComparison.OrdinalIgnoreCase);

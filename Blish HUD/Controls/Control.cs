@@ -6,11 +6,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 using System.Windows.Forms;
 using Blish_HUD.Common.UI.Views;
 using Blish_HUD.Controls.Effects;
 using Blish_HUD.Input;
-using Newtonsoft.Json;
 using MouseEventArgs = Blish_HUD.Input.MouseEventArgs;
 
 namespace Blish_HUD.Controls {

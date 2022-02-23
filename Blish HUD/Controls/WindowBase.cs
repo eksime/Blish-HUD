@@ -30,7 +30,7 @@ namespace Blish_HUD.Controls {
         private static readonly Texture2D _textureWindowResizableCorner       = Content.GetTexture(@"controls/window/156009");
         private static readonly Texture2D _textureWindowResizableCornerActive = Content.GetTexture(@"controls/window/156010");
 
-        private static readonly SettingCollection _windowSettings = GameService.Settings.Settings.AddSubCollection(WINDOW_SETTINGS);
+        private static readonly ISettingCollection _windowSettings = GameService.Settings.Settings.AddSubCollection(WINDOW_SETTINGS);
 
         #endregion
 
@@ -282,7 +282,11 @@ namespace Blish_HUD.Controls {
             if (this.Visible && this.Dragging) {
                 // Save position for next launch
                 if (this.SavesPosition && this.Id != null) {
-                    (_windowSettings[this.Id] as SettingEntry<Point> ?? _windowSettings.DefineSetting(this.Id, this.Location)).Value = this.Location;
+                    if (_windowSettings.TryGetSetting<Point>(this.Id, out var entry)) {
+                        entry.Value = this.Location;
+                    } else {
+                        _windowSettings.DefineSetting(this.Id, this.Location);
+                    }
                 }
 
                 Dragging = false;
@@ -337,8 +341,10 @@ namespace Blish_HUD.Controls {
             if (_visible) return;
 
             // Restore position from previous session
-            if (this.SavesPosition && this.Id != null && _windowSettings.TryGetSetting(this.Id, out var windowPosition)) {
-                this.Location = (windowPosition as SettingEntry<Point> ?? new SettingEntry<Point>()).Value;
+            if (this.SavesPosition && this.Id != null) {
+                if (_windowSettings.TryGetSetting<Point>(this.Id, out var windowPosition)) {
+                    this.Location = windowPosition.Value;
+                }
             }
 
             // Ensure that the window is actually on the screen (accounts for screen size changes, etc.)

@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Text;
+using System.Text.Json;
 using Blish_HUD.Content;
+using Blish_HUD.Content.Serialization;
 using Blish_HUD.Controls;
 using Blish_HUD.Graphics.UI;
 using Blish_HUD.Modules;
 using Blish_HUD.Modules.UI.Views;
 using Blish_HUD.Settings;
 using Microsoft.Xna.Framework;
-using Newtonsoft.Json;
 
 namespace Blish_HUD {
 
@@ -40,15 +40,14 @@ namespace Blish_HUD {
         /// Access to repo management and state.
         /// </summary>
         public ModulePkgRepoHandler ModulePkgRepoHandler { get; private set; }
-
-        private SettingCollection _moduleSettings;
+        private ISettingCollection _moduleSettings;
 
         internal string ModulesDirectory => DirectoryUtil.RegisterDirectory(MODULES_DIRECTORY);
 
-        private SettingEntry<List<string>>                    _exportedOnVersions;
-        private SettingEntry<Dictionary<string, ModuleState>> _moduleStates;
+        private ISettingEntry<List<string>>                    _exportedOnVersions;
+        private ISettingEntry<Dictionary<string, ModuleState>> _moduleStates;
 
-        public SettingEntry<Dictionary<string, ModuleState>> ModuleStates => _moduleStates;
+        public ISettingEntry<Dictionary<string, ModuleState>> ModuleStates => _moduleStates;
 
         private readonly List<ModuleManager>          _modules = new List<ModuleManager>();
         public           IReadOnlyList<ModuleManager> Modules => _modules.ToList();
@@ -63,7 +62,7 @@ namespace Blish_HUD {
             DefineSettings(_moduleSettings);
         }
 
-        private void DefineSettings(SettingCollection settings) {
+        private void DefineSettings(ISettingCollection settings) {
             _moduleStates       = settings.DefineSetting(MODULESTATES_CORE_SETTING, new Dictionary<string, ModuleState>());
             _exportedOnVersions = settings.DefineSetting(EXPORTED_VERSION_SETTING,  new List<string>());
         }
@@ -79,15 +78,11 @@ namespace Blish_HUD {
                 return null;
             }
 
-            string manifestContents;
-            using (var manifestReader = new StreamReader(moduleReader.GetFileStream(MODULE_MANIFESTNAME))) {
-                manifestContents = manifestReader.ReadToEnd();
-            }
-
             Manifest moduleManifest = null;
-
             try {
-                moduleManifest = JsonConvert.DeserializeObject<Manifest>(manifestContents);
+                using var fileStream = moduleReader.GetFileStream(MODULE_MANIFESTNAME);
+                moduleManifest = JsonSerializer.Deserialize<Manifest>(fileStream, new JsonSerializerOptions { Converters = { new SemVerRangeConverter(), new SemVerConverter() } });
+               
             } catch (Exception ex) {
                 Logger.Warn(ex, "Failed to read module manifest.  It appears to be malformed.  The module at path {modulePath} will not be loaded.", moduleReader.GetPathRepresentation());
                 return null;
@@ -143,12 +138,7 @@ namespace Blish_HUD {
                 using (var manifestStream = moduleArchive.GetEntry(MODULE_MANIFESTNAME)?.Open()) {
                     if (manifestStream == null) return;
 
-                    string manifestContents;
-                    using (var manifestReader = new StreamReader(manifestStream)) {
-                        manifestContents = manifestReader.ReadToEnd();
-                    }
-
-                    var moduleManifest = JsonConvert.DeserializeObject<Manifest>(manifestContents);
+                    var moduleManifest = JsonSerializer.Deserialize<Manifest>(manifestStream);
 
                     Logger.Info("Exporting internally packaged module {module}", moduleManifest.GetDetailedName());
 
@@ -164,9 +154,8 @@ namespace Blish_HUD {
         private void LoadCompatibility(IDataReader datReader) {
             if (datReader.FileExists(MODULE_COMPATIBILITYLIST)) {
                 try {
-                    var    compatibilityStream = datReader.GetFileStream(MODULE_COMPATIBILITYLIST).ReplaceWithMemoryStream();
-                    string compatibilityRaw    = Encoding.UTF8.GetString(compatibilityStream.GetBuffer(), 0, (int)compatibilityStream.Length);
-                    _incompatibleModules = JsonConvert.DeserializeObject<List<ModuleDependency>>(compatibilityRaw, new ModuleDependency.VersionDependenciesConverter());
+                    using var fileStream = datReader.GetFileStream(MODULE_COMPATIBILITYLIST);
+                    _incompatibleModules = JsonSerializer.Deserialize<List<ModuleDependency>>(fileStream, new JsonSerializerOptions { ReadCommentHandling = JsonCommentHandling.Skip, Converters = { new ModuleDependency.VersionDependenciesConverter(), new SemVerRangeConverter() } });
                 } catch (Exception ex) {
                     Logger.Warn(ex, "Failed to load {compatibilityFile} from the ref.dat.", MODULE_COMPATIBILITYLIST);
                 }

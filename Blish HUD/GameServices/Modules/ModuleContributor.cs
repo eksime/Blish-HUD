@@ -1,16 +1,16 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Blish_HUD.Modules {
 
     public class ModuleContributor {
 
-        [JsonProperty("name")]
+        [JsonPropertyName("name")]
         public string Name { get; private set; }
 
-        [JsonProperty("username")]
+        [JsonPropertyName("username")]
         public string Username { get; private set; }
 
-        [JsonProperty("url")]
+        [JsonPropertyName("url")]
         public string Url { get; private set; }
 
     }

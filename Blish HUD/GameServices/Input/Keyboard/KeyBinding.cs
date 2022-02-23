@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using Microsoft.Xna.Framework.Input;
 
 namespace Blish_HUD.Input {
@@ -23,14 +23,12 @@ namespace Blish_HUD.Input {
         /// <summary>
         /// The primary key in the binding.
         /// </summary>
-        [JsonProperty]
         public Keys PrimaryKey { get; set; }
 
         /// <summary>
         /// Any combination of <see cref="ModifierKeys"/> required to be pressed
         /// in addition to the <see cref="PrimaryKey"/> for the <see cref="KeyBinding"/> to fire.
         /// </summary>
-        [JsonProperty]
         public ModifierKeys ModifierKeys { get; set; }
 
         private bool _enabled;
@@ -39,7 +37,6 @@ namespace Blish_HUD.Input {
         /// If <c>true</c>, the <see cref="KeyBinding"/> will be enabled and can be triggered by
         /// the specified key combinations.
         /// </summary>
-        [JsonProperty]
         public bool Enabled {
             get => _enabled;
             set {

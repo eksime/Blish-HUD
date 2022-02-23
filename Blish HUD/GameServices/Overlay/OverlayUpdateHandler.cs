@@ -19,9 +19,9 @@ namespace Blish_HUD.Overlay {
 
         private CoreVersionManifest[] _availableUpdates = Array.Empty<CoreVersionManifest>();
 
-        private SettingEntry<bool>           _prereleasesVisible;
-        private SettingEntry<SemVer.Version> _lastAcknowledgedUpdate;
-        private SettingEntry<bool>           _notifyOfNewReleases;
+        private ISettingEntry<bool>           _prereleasesVisible;
+        private ISettingEntry<SemVer.Version> _lastAcknowledgedUpdate;
+        private ISettingEntry<bool>           _notifyOfNewReleases;
 
         private int _releaseLoadAttemptsRemaining = 3;
 
@@ -63,7 +63,7 @@ namespace Blish_HUD.Overlay {
             BeginLoadReleases(DEFAULT_CORERELEASE_URL);
         }
 
-        private void DefineOverlayUpdateSettings(SettingCollection settingCollection) {
+        private void DefineOverlayUpdateSettings(ISettingCollection settingCollection) {
             _prereleasesVisible     = settingCollection.DefineSetting(nameof(PrereleasesVisible),           false);
             _lastAcknowledgedUpdate = settingCollection.DefineSetting(nameof(this.LastAcknowledgedRelease), new SemVer.Version("0.0.0"));
             _notifyOfNewReleases    = settingCollection.DefineSetting(nameof(this.NotifyOfNewRelease),      true);

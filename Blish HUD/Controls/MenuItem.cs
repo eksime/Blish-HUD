@@ -6,7 +6,7 @@ using Blish_HUD.Input;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.TextureAtlases;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Blish_HUD.Controls {
 

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Flurl.Http;
-using Newtonsoft.Json;
 
 namespace Blish_HUD.Modules.Pkgs {
     public class StaticPkgRepoProvider : IPkgRepoProvider {
@@ -52,13 +52,9 @@ namespace Blish_HUD.Modules.Pkgs {
         protected async Task<(PkgManifest[] PkgManifests, Exception Exception)> LoadPkgManifests(string pkgUrl) {
             try {
                 using var compressedRelease = await pkgUrl.GetStreamAsync();
-
                 using var gzipStream = new GZipStream(compressedRelease, CompressionMode.Decompress);
-                using var streamReader = new StreamReader(gzipStream);
-                using var jsonTextReader = new JsonTextReader(streamReader);
-                var serializer = new JsonSerializer();
 
-                return (serializer.Deserialize<PkgManifest[]>(jsonTextReader), null);
+                return (JsonSerializer.Deserialize<PkgManifest[]>(gzipStream), null);
             } catch (Exception ex) {
                 Logger.Warn(ex, $"Failed to load modules from '{pkgUrl}'.");
                 return (Array.Empty<PkgManifest>(), ex);

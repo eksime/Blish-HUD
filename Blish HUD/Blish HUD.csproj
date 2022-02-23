@@ -4,13 +4,14 @@
     <Platforms>x64</Platforms>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <OutputType>WinExe</OutputType>
-    <LangVersion>8</LangVersion>
+    <DebugType>embedded</DebugType>
     <RootNamespace>Blish_HUD</RootNamespace>
     <ApplicationIcon>blishraster2_0dw_icon.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <PublishReadyToRun>false</PublishReadyToRun>
     <TieredCompilation>false</TieredCompilation>
     <UseWindowsForms>true</UseWindowsForms>
+    <LangVersion>8</LangVersion>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
   </PropertyGroup>
 
@@ -247,14 +248,12 @@
     <PackageReference Include="Humanizer.Core.de" Version="2.6.2" PrivateAssets="all" />
     <PackageReference Include="Humanizer.Core.es" Version="2.6.2" PrivateAssets="all" />
     <PackageReference Include="Humanizer.Core.fr" Version="2.6.2" PrivateAssets="all" />
-    <PackageReference Include="JsonSubTypes" Version="1.6.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="all" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.0.1641" PrivateAssets="all" />
     <PackageReference Include="MonoGame.Extended" Version="[3.8.0]" />
     <PackageReference Include="MonoGame.Extended.Content.Pipeline" Version="3.8.0" PrivateAssets="all" />
     <PackageReference Include="MonoGame.Framework.WindowsDX" Version="[3.8.0.1641]" />
     <PackageReference Include="NAudio.Wasapi" Version="2.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="[13.0.1]" />
     <PackageReference Include="NLog" Version="4.6.7" PrivateAssets="all" />
     <PackageReference Include="Octokit" Version="0.32.0" PrivateAssets="all" />
     <PackageReference Include="Ookii.Dialogs.WinForms" Version="4.0.0" />
@@ -262,11 +261,11 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.14.1" />
     <PackageReference Include="System.Resources.Extensions" Version="6.0.0" />
     <PackageReference Include="protobuf-net" Version="3.0.101" />
+    <PackageReference Include="System.Text.Json" Version="6.0.2" />
   </ItemGroup>
   
   <ItemGroup>
     <Reference Include="System.ComponentModel.Composition" />
-    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
 
   <Target Name="BuildRef" AfterTargets="Build">

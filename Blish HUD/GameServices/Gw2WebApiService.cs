@@ -11,6 +11,7 @@ using Blish_HUD.Gw2WebApi;
 using Blish_HUD.Gw2WebApi.UI.Views;
 using Blish_HUD.Settings;
 using Gw2Sharp.WebApi.Exceptions;
+using Blish_HUD.Modules;
 
 namespace Blish_HUD {
 
@@ -58,8 +59,8 @@ namespace Blish_HUD {
         private readonly ConcurrentDictionary<string, string>            _characterRepository = new ConcurrentDictionary<string, string>();
         private readonly ConcurrentDictionary<string, ManagedConnection> _cachedConnections   = new ConcurrentDictionary<string, ManagedConnection>();
 
-        private SettingCollection _apiSettings;
-        private SettingCollection _apiKeyRepository;
+        private ISettingCollection _apiSettings;
+        private ISettingEntry<Dictionary<string, string>> _apiKeyRepository;
 
         protected override void Initialize() {
             _apiSettings = Settings.RegisterRootSettingCollection(GW2WEBAPI_SETTINGS);
@@ -67,9 +68,8 @@ namespace Blish_HUD {
             DefineSettings(_apiSettings);
         }
 
-        private void DefineSettings(SettingCollection settings) {
-            _apiKeyRepository = ((SettingEntry<SettingCollection>)settings[SETTINGS_ENTRY_APIKEYS])?.Value
-                             ?? settings.AddSubCollection(SETTINGS_ENTRY_APIKEYS);
+        private void DefineSettings(ISettingCollection settings) {
+            _apiKeyRepository = settings.DefineSetting(SETTINGS_ENTRY_APIKEYS, new Dictionary<string, string>());
         }
 
         protected override void Load() {
@@ -119,8 +119,9 @@ namespace Blish_HUD {
         private async Task RefreshRegisteredKeys() {
             _characterRepository.Clear();
 
-            foreach (SettingEntry<string> key in _apiKeyRepository.Cast<SettingEntry<string>>()) {
-                await UpdateCharacterList(key);
+            foreach (var kvp in _apiKeyRepository.Value)
+            {
+                await UpdateCharacterList(kvp.Key, kvp.Value);
             }
 
             await UpdateActiveApiKey();
@@ -128,44 +129,36 @@ namespace Blish_HUD {
 
         #region API Management
 
-        public async Task RegisterKey(string name, string apiKey) {
-            SettingEntry<string> registeredKey = _apiKeyRepository.DefineSetting(name, "");
+        public async Task RegisterKey(string name, string apiKey)
+        {
+            _apiKeyRepository.Value[name] = apiKey;
 
-            registeredKey.Value = apiKey;
-
-            await UpdateCharacterList(registeredKey);
+            await UpdateCharacterList(name, apiKey);
             await UpdateActiveApiKey();
         }
 
         public async Task UnregisterKey(string apiKey) {
-            foreach (SettingEntry<string> key in _apiKeyRepository.Cast<SettingEntry<string>>()) {
-                if (string.Equals(apiKey, key.Value, StringComparison.InvariantCultureIgnoreCase) || key.Value.StartsWith(apiKey, StringComparison.InvariantCultureIgnoreCase)) {
-                    _apiKeyRepository.UndefineSetting(key.EntryKey);
-
-                    await RefreshRegisteredKeys();
-
-                    await UpdateActiveApiKey();
-
-                    break;
-                }
+            if (_apiKeyRepository.Value.Remove(apiKey)) {
+                await RefreshRegisteredKeys();
+                await UpdateActiveApiKey();
             }
         }
 
         internal string[] GetKeys() {
-            return _apiKeyRepository.Cast<SettingEntry<string>>().Select((setting) => setting.Value).ToArray();
+            return _apiKeyRepository.Value.Select((setting) => setting.Value).ToArray();
         }
 
-        private async Task UpdateCharacterList(SettingEntry<string> definedKey) {
+        private async Task UpdateCharacterList(string keyName, string keyValue) {
             try {
-                List<string> characters = await GetCharacters(GetConnection(definedKey.Value));
+                List<string> characters = await GetCharacters(GetConnection(keyValue));
 
                 foreach (string characterId in characters) {
-                    _characterRepository.AddOrUpdate(characterId, definedKey.Value, (k, o) => definedKey.Value);
+                    _characterRepository.AddOrUpdate(characterId, keyValue, (k, o) => keyValue);
                 }
 
-                Logger.Info("Associated API key {keyName} with characters: {charactersList}", definedKey.EntryKey, string.Join(", ", characters));
+                Logger.Info("Associated API key {keyName} with characters: {charactersList}", keyName, string.Join(", ", characters));
             } catch (Exception ex) {
-                Logger.Warn(ex, "Failed to get list of associated characters for API key {keyName}.", definedKey.EntryKey);
+                Logger.Warn(ex, "Failed to get list of associated characters for API key {keyName}.", keyName);
             }
         }
 

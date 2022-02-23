@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Flurl.Http;
-using Newtonsoft.Json;
 
 namespace Blish_HUD.Modules.Pkgs {
     public class GitHubPkgRepoProvider : StaticPkgRepoProvider {
@@ -25,7 +25,7 @@ namespace Blish_HUD.Modules.Pkgs {
 
             public string Name { get; set; }
 
-            [JsonProperty("browser_download_url")]
+            [JsonPropertyName("browser_download_url")]
             public string BrowserDownloadUrl { get; set; }
 
         }

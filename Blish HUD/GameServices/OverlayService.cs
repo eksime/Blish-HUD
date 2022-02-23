@@ -43,21 +43,21 @@ namespace Blish_HUD {
         
         public  GameTime CurrentGameTime { get; private set; } = new GameTime(TimeSpan.Zero, TimeSpan.Zero);
 
-        internal SettingCollection OverlaySettings { get; private set; }
+        internal ISettingCollection OverlaySettings { get; private set; }
 
-        public SettingEntry<Locale> UserLocale    { get; private set; }
-        public SettingEntry<bool>   StayInTray    { get; private set; }
-        public SettingEntry<bool>   ShowInTaskbar { get; private set; }
-        internal SettingEntry<KeyBinding> InteractKey { get; private set; }
-        public SettingEntry<KeyBinding> ToggleBlishWindow { get; private set; }
-        public SettingEntry<bool>   CloseWindowOnEscape { get; private set; }
-        public SettingEntry<KeyBinding> HideAllInterface { get; private set; }
+        public IUiSettingEntry<Locale> UserLocale    { get; private set; }
+        public IUiSettingEntry<bool>   StayInTray    { get; private set; }
+        public IUiSettingEntry<bool>   ShowInTaskbar { get; private set; }
+        internal IUiSettingEntry<KeyBinding> InteractKey { get; private set; }
+        public IUiSettingEntry<KeyBinding> ToggleBlishWindow { get; private set; }
+        public IUiSettingEntry<bool>   CloseWindowOnEscape { get; private set; }
+        public IUiSettingEntry<KeyBinding> HideAllInterface { get; private set; }
         public bool InterfaceHidden = false;
 
         private readonly ConcurrentQueue<Action<GameTime>> _queuedUpdates = new ConcurrentQueue<Action<GameTime>>();
 
 
-        private SettingEntry<DynamicHUDMethod> _dynamicHUDMenuBar;
+        private IUiSettingEntry<DynamicHUDMethod> _dynamicHUDMenuBar;
         public DynamicHUDMethod DynamicHUDMenuBar {
             get => _dynamicHUDMenuBar.Value;
             set => _dynamicHUDMenuBar.Value = value;
@@ -106,43 +106,43 @@ namespace Blish_HUD {
                                                  int.MaxValue - 12);
         }
 
-        private void DefineSettings(SettingCollection settings) {
-            this.UserLocale    =       settings.DefineSetting("AppCulture",
+        private void DefineSettings(ISettingCollection settings) {
+            this.UserLocale    =       settings.DefineUiSetting("AppCulture",
                                                               GetGw2LocaleFromCurrentUICulture(),
                                                               () => Strings.GameServices.OverlayService.Setting_AppCulture_DisplayName,
                                                               () => Strings.GameServices.OverlayService.Setting_AppCulture_Description);
 
-            this.StayInTray    =       settings.DefineSetting("StayInTray",
+            this.StayInTray    =       settings.DefineUiSetting(nameof(StayInTray),
                                                               true,
                                                               () => Strings.GameServices.OverlayService.Setting_StayInTray_DisplayName,
                                                               () => Strings.GameServices.OverlayService.Setting_StayInTray_Description + (ApplicationSettings.Instance.StartGw2 > 0 ? " (Disabled because you launched Blish HUD with --startgw2 or -g)" : ""));
 
-            this.ShowInTaskbar =       settings.DefineSetting("ShowInTaskbar",
+            this.ShowInTaskbar =       settings.DefineUiSetting(nameof(ShowInTaskbar),
                                                               false,
                                                               () => Strings.GameServices.OverlayService.Setting_ShowInTaskbar_DisplayName,
                                                               () => Strings.GameServices.OverlayService.Setting_ShowInTaskbar_Description);
 
-            this.CloseWindowOnEscape = settings.DefineSetting("CloseWindowOnEscape",
+            this.CloseWindowOnEscape = settings.DefineUiSetting(nameof(CloseWindowOnEscape),
                                                               true,
                                                               () => Strings.GameServices.OverlayService.Setting_CloseWindowOnEscape_DisplayName,
                                                               () => Strings.GameServices.OverlayService.Setting_CloseWindowOnEscape_Description);
 
-            _dynamicHUDMenuBar =       settings.DefineSetting("DynamicHUDMenuBar",
+            this._dynamicHUDMenuBar =  settings.DefineUiSetting(nameof(DynamicHUDMenuBar),
                                                               DynamicHUDMethod.AlwaysShow,
                                                               () => Strings.GameServices.OverlayService.Setting_DynamicHUDMenuBar_DisplayName,
                                                               () => Strings.GameServices.OverlayService.Setting_DynamicHUDMenuBar_Description);
 
-            this.InteractKey =         settings.DefineSetting(nameof(this.InteractKey),
+            this.InteractKey =         settings.DefineUiSetting(nameof(this.InteractKey),
                                                               new KeyBinding(Keys.F),
                                                               () => Strings.GameServices.OverlayService.Setting_InteractKey_DisplayName,
                                                               () => Strings.GameServices.OverlayService.Setting_InteractKey_Description);
 
-            this.HideAllInterface =    settings.DefineSetting(nameof(this.HideAllInterface),
+            this.HideAllInterface =    settings.DefineUiSetting(nameof(this.HideAllInterface),
                                                               new KeyBinding(ModifierKeys.Shift | ModifierKeys.Ctrl, Keys.H),
                                                               () => Strings.GameServices.OverlayService.Setting_HideInterfaceKeybind_DisplayName,
                                                               () => Strings.GameServices.OverlayService.Setting_HideInterfaceKeybind_Description);
 
-            this.ToggleBlishWindow =   settings.DefineSetting(nameof(this.ToggleBlishWindow),
+            this.ToggleBlishWindow =   settings.DefineUiSetting(nameof(this.ToggleBlishWindow),
                                                               new KeyBinding(ModifierKeys.Shift | ModifierKeys.Ctrl, Keys.B),
                                                               () => Strings.GameServices.OverlayService.Setting_ToggleBlishWindowKeybind_DisplayName,
                                                               () => Strings.GameServices.OverlayService.Setting_ToggleBlishWindowKeybind_Description);

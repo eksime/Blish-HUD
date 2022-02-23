@@ -1,24 +1,24 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 using Version = SemVer.Version;
 
 namespace Blish_HUD.Overlay {
     public struct CoreVersionManifest {
-
-        [JsonProperty("url", Required = Required.Always)]
+        [JsonPropertyName("url")]
         public string Url { get; set; }
 
 
-        [JsonProperty("checksum", Required = Required.Always)]
+        [JsonPropertyName("checksum")]
         public string Checksum { get; set; }
 
 
-        [JsonProperty("version", Required = Required.Always), JsonConverter(typeof(Content.Serialization.SemVerConverter))]
+        [JsonPropertyName("version")]
+        [JsonConverter(typeof(Content.Serialization.SemVerConverter))]
         public Version Version { get; set; }
 
-        [JsonProperty("is_prerelease", Required = Required.DisallowNull)]
+        [JsonPropertyName("is_prerelease")]
         public bool IsPrerelease { get; set; }
 
-        [JsonProperty("changelog")]
+        [JsonPropertyName("changelog")]
         public string Changelog { get; set; }
 
     }

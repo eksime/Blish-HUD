@@ -168,7 +168,7 @@ namespace Blish_HUD.Modules {
         /// Define the settings you would like to use in your module.  Settings are persistent
         /// between updates to both Blish HUD and your module.
         /// </summary>
-        protected virtual void DefineSettings(SettingCollection settings) { /* NOOP */ }
+        protected virtual void DefineSettings(ISettingCollection settings) { /* NOOP */ }
 
         /// <summary>
         /// The <see cref="IView"/> to display in the settings area of the module when it is enabled.

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using System.Linq;
 using Blish_HUD.Input;
 using Microsoft.Xna.Framework;
@@ -24,7 +25,7 @@ namespace Blish_HUD.Controls {
 
         protected ControlCollection<Control> _children;
 
-        [Newtonsoft.Json.JsonIgnore]
+        [JsonIgnore]
         public ControlCollection<Control> Children => _children;
 
         protected Container() {

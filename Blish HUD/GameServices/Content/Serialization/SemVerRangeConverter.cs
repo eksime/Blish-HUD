@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Version = SemVer.Version;
+using Range = SemVer.Range;
 
 namespace Blish_HUD.Content.Serialization {
-    public class SemVerConverter : JsonConverter<Version> {
+    public class SemVerRangeConverter : JsonConverter<Range> {
         /// <inheritdoc />
-        public override Version Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
+        public override Range Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
             string versionStr = JsonSerializer.Deserialize<string>(ref reader, options);
-            return new Version(versionStr, true);
+            return new Range(versionStr, true);
         }
 
         /// <inheritdoc />
-        public override void Write(Utf8JsonWriter writer, Version value, JsonSerializerOptions options) {
+        public override void Write(Utf8JsonWriter writer, Range value, JsonSerializerOptions options) {
             JsonSerializer.Serialize(writer, value.ToString(), options);
         }
     }

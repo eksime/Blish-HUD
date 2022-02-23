@@ -48,8 +48,8 @@ namespace Blish_HUD.Modules {
         /// </summary>
         public IReadOnlyCollection<IPkgRepoProvider> PkgRepos => _repos.AsReadOnly();
 
-        private SettingEntry<string> _defaultRepoUrlSetting;
-        private SettingCollection    _acknowledgedUpdates;
+        private ISettingEntry<string> _defaultRepoUrlSetting;
+        private ISettingCollection    _acknowledgedUpdates;
 
         private MenuItem         _repoMenuItem;
         private IPkgRepoProvider _defaultRepoProvider;
@@ -64,7 +64,7 @@ namespace Blish_HUD.Modules {
             RegisterRepoManagementInSettingsUi();
         }
 
-        private void DefineModuleRepoSettings(SettingCollection settingCollection) {
+        private void DefineModuleRepoSettings(ISettingCollection settingCollection) {
             _defaultRepoUrlSetting = settingCollection.DefineSetting(DEFAULT_REPOURL_SETTING, DEFAULT_BHUDPKGS_REPOURL);
 
             _acknowledgedUpdates = settingCollection.AddSubCollection(ACKNOWLEDGED_UPDATES_SETTING);
@@ -88,7 +88,7 @@ namespace Blish_HUD.Modules {
         #region Module Update Indicators
 
         private bool GetUpdateIsNotAcknowledged(PkgManifest modulePkg) {
-            if (_acknowledgedUpdates.TryGetSetting(modulePkg.Namespace, out var setting) && setting is SettingEntry<string> acknowledgedModuleUpdate) {
+            if (_acknowledgedUpdates.TryGetSetting<string>(modulePkg.Namespace, out var acknowledgedModuleUpdate)) {
                 return modulePkg.Version > new SemVer.Version(acknowledgedModuleUpdate.Value, true);
             }
 
@@ -122,7 +122,7 @@ namespace Blish_HUD.Modules {
         private void AcknowledgePendingModuleUpdates() {
             // Mark all updates as acknowledged
             foreach (var unacknowledgedModuleUpdate in this.UnacknowledgedUpdates) {
-                if (!_acknowledgedUpdates.TryGetSetting<string>(unacknowledgedModuleUpdate.Namespace, out SettingEntry<string> acknowledgementEntry)) {
+                if (!_acknowledgedUpdates.TryGetSetting<string>(unacknowledgedModuleUpdate.Namespace, out var acknowledgementEntry)) {
                     acknowledgementEntry = _acknowledgedUpdates.DefineSetting(unacknowledgedModuleUpdate.Namespace, "0.0.0");
                 }
 

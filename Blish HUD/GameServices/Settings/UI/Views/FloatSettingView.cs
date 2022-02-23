@@ -4,7 +4,7 @@ using Blish_HUD.Controls;
 namespace Blish_HUD.Settings.UI.Views {
     public class FloatSettingView : NumericSettingView<float> {
 
-        public FloatSettingView(SettingEntry<float> setting, int definedWidth = -1) : base(setting, definedWidth) { /* NOOP */ }
+        public FloatSettingView(IUiSettingEntry<float> setting, int definedWidth = -1) : base(setting, definedWidth) { /* NOOP */ }
 
         protected override void BuildSetting(Container buildPanel) {
             base.BuildSetting(buildPanel);

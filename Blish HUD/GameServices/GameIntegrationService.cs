@@ -99,7 +99,7 @@ namespace Blish_HUD {
 
         #endregion
 
-        internal SettingCollection ServiceSettings { get; private set; }
+        internal ISettingCollection ServiceSettings { get; private set; }
 
         internal GameIntegrationService() {
             SetServiceModules(this.Gw2Instance = new Gw2InstanceIntegration(this),

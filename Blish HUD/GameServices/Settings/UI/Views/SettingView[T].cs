@@ -43,7 +43,7 @@ namespace Blish_HUD.Settings.UI.Views {
             set => RefreshValue(_value = value);
         }
 
-        protected SettingView(SettingEntry<TSetting> setting, int definedWidth) {
+        protected SettingView(IUiSettingEntry<TSetting> setting, int definedWidth) {
             _definedWidth = definedWidth;
             _value = setting.Value;
 

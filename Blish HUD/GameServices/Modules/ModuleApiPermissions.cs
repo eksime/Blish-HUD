@@ -1,13 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Blish_HUD.Modules {
 
     public class ModuleApiPermissions {
 
-        [JsonProperty("optional")]
+        [JsonPropertyName("optional")]
         public bool Optional { get; private set; }
 
-        [JsonProperty("details")]
+        [JsonPropertyName("details")]
         public string Details { get; private set; }
 
     }
